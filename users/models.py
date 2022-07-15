@@ -1,11 +1,6 @@
 from django.db import models
 
-class TimeStampModel(models.Model):
-    created_at   = models.DateTimeField(auto_now_add=True) 
-    updated_at   = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract= True
+from utils.models import TimeStampModel
 
 class User(TimeStampModel):
     email        = models.CharField(max_length=45)
