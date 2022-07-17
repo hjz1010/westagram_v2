@@ -107,3 +107,30 @@ class CommentView(View):
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
         except jwt.InvalidTokenError:
             return JsonResponse({'message': 'INVALID_TOKEN'}, status=401)
+
+    '''
+    목적: 댓글 표출
+    1. client가 요청한 게시글에 달린 댓글을 표출하기 위해 게시글 번호를 확인한다.
+    2. 데이터 베이스에서 그 게시글에 해당하는 댓글을 모두 불러온다.
+    3. 댓글 작성자, 댓글 내용, 작성 시간을 담아서 response를 보낸다. 
+    '''
+
+    def get(self, request):
+        data = json.loads(request.body)
+
+        try:
+            posting_id = data['posting_number']
+
+            comments = Comment.objects.filter(posting_id=posting_id)
+            
+            results = []
+            for comment in comments:
+                results.append({
+                    'user': comment.user.email,
+                    'contents': comment.contents,
+                    'commented_at': comment.created_at
+                })
+            return JsonResponse({'results': results}, status=200)
+
+        except KeyError:
+            return JsonResponse({'message': 'KEY_ERROR'}, status=400)
