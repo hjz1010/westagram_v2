@@ -45,3 +45,37 @@ class PostingView(View):
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
         except jwt.InvalidTokenError:
             return JsonResponse({'message': 'INVALID_TOKEN'}, status=401)
+
+    def get(self, request):
+        '''
+        목적: 게시글 표출
+        1. client가 요청한 사용자의 게시글들을 데이터 베이스에서 찾는다. 
+        2. 게시자(사용자), 이미지, 게시글, 게시 시간을 보내준다.
+        '''
+        data = json.loads(request.body)
+        try:
+            email    = data['email']
+            user     = User.objects.get(email=email)
+            postings = Posting.objects.filter(user=user)
+
+            results = []
+            for posting in postings :
+                results.append({
+                    'email'    : email,
+                    'image'    : posting.image,
+                    'contents' : posting.contents,
+                    'posted_at': posting.posted_at
+                })
+
+            return JsonResponse({ 'results': results}, status=200)
+
+
+        except KeyError:
+            return JsonResponse({'message': 'KEY_ERROR'}, status=400)    
+        except User.DoesNotExist:
+            return JsonResponse({'message': 'INVALID_USER'}, status=401)       
+        # 게시글 표출 함수 만들어서 커밋 새로 하자 
+class CommentView(View):
+    '''
+    목적: 댓글 저장
+    '''
