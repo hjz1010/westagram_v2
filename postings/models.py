@@ -18,3 +18,10 @@ class Comment(TimeStampModel):
 
     class Meta:
         db_table = 'comments'
+
+class Like(models.Model):
+    user        = models.ForeignKey(User, on_delete=models.CASCADE)
+    posting     = models.ForeignKey(Posting, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'likes'

@@ -6,7 +6,7 @@ from django.views import View
 from django.conf  import settings
 
 from users.models    import User
-from postings.models import Posting, Comment
+from postings.models import Posting, Comment, Like
 
 class PostingView(View):
 
@@ -131,6 +131,41 @@ class CommentView(View):
                     'commented_at': comment.created_at
                 })
             return JsonResponse({'results': results}, status=200)
+
+        except KeyError:
+            return JsonResponse({'message': 'KEY_ERROR'}, status=400)
+
+
+class LikeView(View):
+    def post(self, request):
+        '''
+        목적: 좋아요 기능 구현
+        1. client가 보내온 데이터에서 게시글 번호와 좋아요를 누른 사용자를 받아온다.
+        2. 받아온 사용자가 해당 게시글에 좋아요를 누른 적이 있는지 확인한다.
+        3. 있다면 해당 좋아요 데이터를 삭제하고, 없다면 데이터를 저장한다.
+      # 4. 추후 좋아요 수를 표출할 때는 해당 포스팅에 posting_id에 연결된 좋아요 객체 갯수를 확인한다..!
+        '''
+        data= json.loads(request.body)
+
+        try: 
+            posting_id   = data['posting_number']
+            access_token = data['access_token']
+
+            header  = jwt.decode(access_token, settings.SECRET_KEY, 'HS256')
+            user_id = header['user_id']
+
+            if Like.objects.filter(user_id = user_id):
+                l = Like.objects.get(user_id = user_id)
+                l.delete()
+            else:
+                Like.objects.create(
+                    posting = Posting.objects.get(id = posting_id),
+                    user    = User.objects.get(id = user_id),            
+                )
+            likes  = Like.objects.filter(posting_id = posting_id)
+            result = len(likes)
+
+            return JsonResponse({'result': result}, status=200)
 
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
