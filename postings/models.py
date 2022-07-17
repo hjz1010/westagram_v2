@@ -11,7 +11,7 @@ class Posting(TimeStampModel):
     class Meta:
         db_table = 'postings'
 
-class Commnet(TimeStampModel):
+class Comment(TimeStampModel):
     posting  = models.ForeignKey(Posting, on_delete=models.CASCADE)
     user     = models.ForeignKey(User, on_delete=models.CASCADE)
     contents = models.TextField()
