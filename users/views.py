@@ -96,7 +96,8 @@ class FollowView(View):
                 follower  = follower,
                 following = following 
             )
-
+            return JsonResponse({'message': 'SUCCESS'}, status=200)
+            
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
         except jwt.InvalidTokenError:
