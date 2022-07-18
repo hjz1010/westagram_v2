@@ -11,9 +11,9 @@ class User(TimeStampModel):
     class Meta:
         db_table = 'users'
 
-# class follow(models.Model):
-#     follower  = models.ForeignKey(User, on_delete=models.CASCADE)
-#     following = models.ForeignKey(User, on_delete=models.CASCADE) 
+class Follow(models.Model):
+    follower  = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
+    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='follower') 
 
-#     class Meta:
-#         db_table = 'follows'
+    class Meta:
+        db_table = 'follows'

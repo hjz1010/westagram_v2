@@ -6,7 +6,7 @@ from django.http  import JsonResponse
 from django.views import View
 from django.conf  import settings
 
-from .models import User
+from .models import User, Follow
 
 
 REGEX_EMAIL    = '^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
@@ -76,3 +76,28 @@ class LoginView(View):
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
         except User.DoesNotExist:
             return JsonResponse({'message': 'INVALID_USER'}, status=401)
+
+
+class FollowView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+
+        try :
+            email     = data['email']
+            following = User.objects.get(email = email)
+
+            access_token = request.headers.get('Authorization')
+            if not access_token: 
+                return JsonResponse({'message': 'INVALID_TOKEN'}, status=401)
+            header   = jwt.decode(access_token, settings.SECRET_KEY, 'HS256')
+            follower = User.objects.get(id = header['user_id'])
+
+            Follow.objects.create(
+                follower  = follower,
+                following = following 
+            )
+
+        except KeyError:
+            return JsonResponse({'message': 'KEY_ERROR'}, status=400)
+        except jwt.InvalidTokenError:
+            return JsonResponse({'message': 'INVALID_TOKEN'}, status=401)
