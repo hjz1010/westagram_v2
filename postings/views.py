@@ -27,13 +27,15 @@ class PostingView(View):
         }
         '''
         try: 
-            access_token = data['access_token']
             image        = data['image']
             contents     = data['contents']
-
+            # access_token = data['access_token']
+            access_token = request.headers.get('Authorization')
+            if not access_token :
+                return JsonResponse({'message': 'INVALID_TOKEN'}, status=401)
             header = jwt.decode(access_token, settings.SECRET_KEY, 'HS256')
-            # print(header)  # {'user_id':5}
-                        
+            # print(header)  # {'user_id':5}       
+                             
             Posting.objects.create(
                 user     = User.objects.get(id = header['user_id']),
                 image    = image,
@@ -91,9 +93,11 @@ class CommentView(View):
         '''
         try:
             posting_id   = data['posting_number']
-            access_token = data['access_token']
+            # access_token = data['access_token']
             contents     = data['contents']
-
+            access_token = request.headers.get('Authorization')
+            if not access_token :
+                return JsonResponse({'message': 'INVALID_TOKEN'}, status=401)    
             header = jwt.decode(access_token, settings.SECRET_KEY, 'HS256')
 
             Comment.objects.create(
@@ -149,13 +153,15 @@ class LikeView(View):
 
         try: 
             posting_id   = data['posting_number']
-            access_token = data['access_token']
-
+            # access_token = data['access_token']
+            access_token = request.headers.get('Authorization')
+            if not access_token :
+                return JsonResponse({'message': 'INVALID_TOKEN'}, status=401)
             header  = jwt.decode(access_token, settings.SECRET_KEY, 'HS256')
             user_id = header['user_id']
 
-            if Like.objects.filter(user_id = user_id):
-                l = Like.objects.get(user_id = user_id)
+            if Like.objects.filter(user_id = user_id, posting_id = posting_id):
+                l = Like.objects.get(user_id = user_id, posting_id = posting_id)
                 l.delete()
             else:
                 Like.objects.create(

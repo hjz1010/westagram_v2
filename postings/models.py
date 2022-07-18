@@ -25,3 +25,4 @@ class Like(models.Model):
 
     class Meta:
         db_table = 'likes'
+## ManyToMany로 바꿔보자아아아아아아아아아ㅏㅏㅏㅏ
